@@ -90,13 +90,16 @@ def compute_T_inrtl_to_pcpf(dt,
     Returns:
         A 3x3 transformation matrix.
     """
+
+    # The negative sign inside rotate_z controls the direction of
+    # rotation.
     if T_inrtl_to_pcpf0 is None:
         if dt == 0:
             return np.identity(3)
-        return rotate_z(w_pcpf * dt)
+        return rotate_z(-w_pcpf * dt)
     else:
         if dt == 0:
             return T_inrtl_to_pcpf0
-        return rotate_z(w_pcpf * dt).dot(T_inrtl_to_pcpf0)
+        return rotate_z(-w_pcpf * dt).dot(T_inrtl_to_pcpf0)
     
     

@@ -16,8 +16,9 @@ class SimFlatsat(object):
                  T_enu_to_body = np.identity(3)):
 
         self.t                = 0.0
-        self.w_pcpf_wrt_inrtl = np.array([0.0, 0.0,
-                                          2.0 * np.pi / (23 * 3600.0 + 56 * 60.0 + 4.091)])
+        self.w_pcpf_wrt_inrtl = np.array([ 0.0,
+                                           0.0,
+                                           2.0 * np.pi / (23 * 3600.0 + 56 * 60.0 + 4.091)])
         self.w_body_wrt_pcpf  = np.zeros(3)
         self.r_pcpf           = planetodetic_to_pcpf(lon, lat)
         self.T_inrtl_to_pcpf  = np.identity(3)

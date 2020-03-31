@@ -1,5 +1,5 @@
 import unittest
-from test import test_qekf
+from test import test_qekf, test_sim_flatsat
 
 def qekf_test_suite():
     """
@@ -9,6 +9,7 @@ def qekf_test_suite():
     loader = unittest.TestLoader()
     suite  = unittest.TestSuite()
     suite.addTests(loader.loadTestsFromModule(test_qekf))
+    suite.addTests(loader.loadTestsFromModule(test_sim_flatsat))
 
     return suite
 
