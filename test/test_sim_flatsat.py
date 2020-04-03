@@ -1,6 +1,9 @@
 import unittest
 
-from .context import SimFlatsat
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from sim_flatsat import SimFlatsat
 
 import scipy.linalg as spl
 
