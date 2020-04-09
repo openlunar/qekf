@@ -14,6 +14,7 @@ from frames import compute_T_pcpf_to_enu
 from frames import compute_T_inrtl_to_pcpf
 
 from qekf import Qekf
+from sim import Sim
 
 from physics import lookup_u_sun_inrtl, lookup_u_mag_enu, noisify_line_of_sight_vector
 
@@ -23,17 +24,11 @@ from plots import plot_angular_velocity_measurement_check
 from plots import plot_gyroscope_bias_check
 import matplotlib.pyplot as plt
 
-class SimFlatsat(object):
-    # Made up these numbers, all in radians
-    sigma_sun_sensor = 1e-3
-    sigma_mag_sensor = 1e-3
-    sigma_sun_model  = 1e-11
-    sigma_mag_model  = 1e-3
 
-    # These numbers come from IMU specifications:
-    sigma_gyro_bias  = 0.1 * np.pi/180.0 # turn-on bias (r/s)
-    sigma_gyro_arw   = 0.0013 * np.pi/180.0
-    
+class SimFlatsat(Sim):
+    """Simulates a flatsat sitting on a table in a lab. Includes earth
+    rate."""
+
     def __init__(self,
                  lon           = -122.41 * np.pi/180.0,
                  lat           = 37.7749 * np.pi/180.0,
@@ -59,44 +54,12 @@ class SimFlatsat(object):
         self.T_pcpf_to_enu = compute_T_pcpf_to_enu(self.r_pcpf)
         self.T_enu_to_body    = T_enu_to_body
         self.r_inrtl          = self.T_inrtl_to_pcpf.T.dot(self.r_pcpf)
-        self.b_gyro_body      = npr.randn(3) * self.sigma_gyro_bias
-
-        self.log = {'t':   [self.t],
-                    'qIB': [pq.from_matrix(self.T_inrtl_to_body)],
-                    'rI':  [self.r_inrtl],
-                    'wBI': [np.zeros(3)],
-                    'bg':  [self.b_gyro_body]}
+        self.initialize_gyro_bias()
+        self.initialize_log() # do last
 
     @property
     def T_inrtl_to_body(self):
         return self.T_enu_to_body.dot(self.T_pcpf_to_enu.dot(self.T_inrtl_to_pcpf))
-        
-
-    def make_vector_attitude_measurements(self):
-        """Use SPICE and WMM2015 to get sun and magnetic field
-        vectors. Pretend these are "true."  Then corrupt those vectors
-        with some noise, twice --- once to make reference vectors and
-        another time to make observation vectors.
-
-        """
-        
-        # Get reference and observation vectors
-        u_sun_inrtl = lookup_u_sun_inrtl(self.t)
-        u_sun_ref   = noisify_line_of_sight_vector(u_sun_inrtl, self.sigma_sun_model)
-        u_sun_body  = self.T_inrtl_to_body.dot(u_sun_inrtl)
-        u_sun_obs   = noisify_line_of_sight_vector(u_sun_body, self.sigma_sun_sensor)
-
-        # Pretend WMM2015's value is "true" and not just a
-        # model. Corrupt "true" to our "model", which is ref.
-        # Then corrupt "true" to our observation.
-        T_enu_to_inrtl  = self.T_inrtl_to_pcpf.T.dot(self.T_pcpf_to_enu.T)
-        u_mag_enu       = lookup_u_mag_enu(self.lon, self.lat)
-        u_mag_inrtl     = T_enu_to_inrtl.dot(u_mag_enu)
-        u_mag_ref       = noisify_line_of_sight_vector(u_mag_inrtl, self.sigma_mag_model)
-        u_mag_body      = self.T_inrtl_to_body.dot(u_mag_inrtl)
-        u_mag_obs       = noisify_line_of_sight_vector(u_mag_body, self.sigma_mag_sensor)
-
-        return (u_sun_obs, u_mag_obs, u_sun_ref, u_mag_ref)
                 
     def run(self, duration,
             dt           = 0.1,

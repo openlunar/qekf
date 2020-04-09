@@ -83,3 +83,16 @@ def noisify_line_of_sight_vector(u, sigma):
 
     u_noisy = T_z_to_u.dot(T_misalign.dot(z))
     return u_noisy / spl.norm(u_noisy) # normalize it
+
+def gravity(t, r, mu = 3.986004418e14):
+    """Compute acceleration due to gravity given a point mass."""
+    r2 = r.T.dot(r)
+    r1 = np.sqrt(r2)
+    r3 = r1 * r2
+    r5 = r2 * r3
+
+    if r2 < SMALL:
+        raise ValueError("position for gravity calculation too close to origin")
+
+    return r * -mu / r3
+
