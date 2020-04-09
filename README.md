@@ -1,21 +1,32 @@
 # qekf
 
-Example q-method extended Kalman filter
+Prototype q-method extended Kalman filter
 
 * [Open Lunar Foundation](https://www.openlunar.org/)
 
 ## Description
 
 This is a prototype q-method extended Kalman filter based on work by
-Christian and Zanetti, for eventual use on an earth-orbiting cubesat.
+Ainscough, Zanetti, Christian, and Spanos, that was intended for
+eventual use on an earth-orbiting cubesat, and perhaps ultimately in a
+lunar lander. It only includes two states: attitude and gyroscope bias.
+
+### Note about validation/testing status
+
+This repository includes a simulation that validates the qEKF
+implementation in a flatsat on a rotating planet. The simulation for a
+tumbling spacecraft in orbit is in branch `tumble_sim_wip` and needs a
+few more hours of work to be completed. Unfortunately, that work won't
+be by Open Lunar's engineering team. If you want to pick up the work
+where we left off, start there.
 
 ## Requirements
 
 * Python 3.x
 * Numpy
 * SciPy
-* [ruamel.yaml](https://bitbucket.org/ruamel/yaml/src)
 * Matplotlib
+* [pyquat](https://github.com/openlunar/pyquat)
 
 ## Installation
 
@@ -28,7 +39,13 @@ out of the repository directory.
 
 ## Usage
 
-TBD
+Unit tests can be run using
+
+    python3 setup.py test
+
+The flatsat simulation is run using
+
+    python3 sim_flatsat.py
 
 ## Developers
 
@@ -37,7 +54,7 @@ If you find a bug or wish to make a contribution, use the project's
 
 ## License
 
-Copyright (c) 2019--2020, Open Lunar Foundation.
+Copyright (c) 2020, John O. "Juno" Woods and Open Lunar Foundation.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
